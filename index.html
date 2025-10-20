@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diwali Lights for My Crush 🎆</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at bottom, #0a001a, #000);
+      overflow: hidden;
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: #ffd700;
+      text-shadow: 0 0 20px #ffae00, 0 0 40px #ff5100;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px #ffae00, 0 0 20px #ff5100; }
+      to { text-shadow: 0 0 30px #ffae00, 0 0 60px #ff5100; }
+    }
+
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    #btn {
+      position: absolute;
+      top: 70%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #ffae00;
+      color: #fff;
+      border: none;
+      padding: 15px 25px;
+      font-size: 1.2rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px #ffae00;
+    }
+
+    #btn:hover {
+      background: #ff5100;
+      box-shadow: 0 0 30px #ff5100;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <h1 id="heading">✨ Click Here to start... ✨</h1>
+  <button id="btn">💖Yaha pe click kar💖</button>
+  <audio id="music" src="Laila Laila _ AndhaDhun _ Ayushmann Khurrana, Radhika Apte, Tabu _ Amit Trivedi _ Lyrical-[AudioTrimmer.com].mp3"></audio>
+  <audio id="fire" src="Fireworks with Sound Effects.mp3"></audio>
+
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    class Firework {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.color = color;
+        this.radius = Math.random() * 2 + 1;
+        this.angle = Math.random() * 2 * Math.PI;
+        this.speed = Math.random() * 6 + 2;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.02 + 0.01;
+      }
+      update() {
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+        this.alpha -= this.decay;
+      }
+      draw() {
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+      }
+    }
+
+
+    // 🚀 Rocket firework function
+function launchRocket(x, y) {
+  const colors = ['#ff0040', '#ffae00', '#00ffff', '#ff00ff', '#00ff88'];
+
+  // Rocket going up
+  let rocketY = canvas.height;
+  const targetY = y; // where to explode
+  const color = colors[Math.floor(Math.random() * colors.length)];
+
+  const rocketInterval = setInterval(() => {
+    ctx.beginPath();
+    ctx.arc(x, rocketY, 3, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Small trail
+    ctx.beginPath();
+    ctx.moveTo(x, rocketY + 10);
+    ctx.lineTo(x, rocketY + 20);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    rocketY -= 10; // move upward
+
+    if (rocketY <= targetY) {
+      clearInterval(rocketInterval);
+      createFirework(x, y); // 💥 explode at the top
+    }
+  }, 30);
+}
+
+function floatingButterflies(count = 5) {
+  const butterflies = [];
+
+  for (let i = 0; i < count; i++) {
+    butterflies.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      dx: (Math.random() - 0.5) * 2,
+      dy: (Math.random() - 0.5) * 2,
+      size: Math.random() * 20 + 15,
+      angle: Math.random() * Math.PI * 2
+    });
+  }
+
+  function drawButterfly(b) {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(Math.sin(b.angle) * 0.3); // flap wings
+    ctx.beginPath();
+    // left wing
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(-b.size, -b.size, -b.size, b.size, 0, 0);
+    // right wing
+    ctx.moveTo(0, 0);
+    ctx.bezierCurveTo(b.size, -b.size, b.size, b.size, 0, 0);
+    ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 60%)`;
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function animateButterflies() {
+    for (let b of butterflies) {
+      b.x += b.dx;
+      b.y += b.dy;
+      b.angle += 0.1;
+
+      // bounce from edges
+      if (b.x < 0 || b.x > canvas.width) b.dx *= -1;
+      if (b.y < 0 || b.y > canvas.height) b.dy *= -1;
+
+      drawButterfly(b);
+    }
+    requestAnimationFrame(animateButterflies);
+  }
+
+  animateButterflies();
+}
+
+    
+   function floatingDiyas() {
+  const diyas = [];
+  for (let i = 0; i < 20; i++) {
+    diyas.push({
+      x: Math.random() * canvas.width,
+      y: canvas.height + Math.random() * 200,
+      radius: Math.random() * 4 + 2,
+      speed: Math.random() * 0.5 + 0.3,
+      glow: `hsl(${Math.random() * 60 + 20}, 100%, 60%)`
+    });
+  }
+
+  function animateDiyas() {
+    // 🖤 Keep black background, slightly fade previous trails
+    ctx.fillStyle = "rgba(0, 0, 0, 0)";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    for (let diya of diyas) {
+      diya.y -= diya.speed;
+      if (diya.y < -20) {
+        diya.y = canvas.height + Math.random() * 200;
+        diya.x = Math.random() * canvas.width;
+      }
+
+      ctx.beginPath();
+      ctx.arc(diya.x, diya.y, diya.radius, 0, Math.PI * 2);
+      ctx.fillStyle = diya.glow;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = diya.glow;
+      ctx.fill();
+    }
+
+    ctx.shadowBlur = 0;
+    requestAnimationFrame(animateDiyas);
+  }
+
+  animateDiyas();
+}
+
+
+function floatingImages(imgSrc, count = 5) {
+  const images = [];
+  const img = new Image();
+  img.src = imgSrc;
+
+  img.onload = () => {
+    for (let i = 0; i < count; i++) {
+      images.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        dx: (Math.random() - 0.5) * 2,
+        dy: (Math.random() - 0.5) * 2,
+        size: Math.random() * 50 + 30,
+        angle: Math.random() * Math.PI * 2
+      });
+    }
+
+    function animateImages() {
+      for (let obj of images) {
+        obj.x += obj.dx;
+        obj.y += obj.dy;
+        obj.angle += 0.02;
+
+        // Bounce from edges
+        if (obj.x < 0 || obj.x > canvas.width - obj.size) obj.dx *= -1;
+        if (obj.y < 0 || obj.y > canvas.height - obj.size) obj.dy *= -1;
+
+        ctx.save();
+        ctx.translate(obj.x + obj.size / 2, obj.y + obj.size / 2);
+        ctx.rotate(obj.angle);
+        ctx.drawImage(img, -obj.size / 2, -obj.size / 2, obj.size, obj.size);
+        ctx.restore();
+      }
+
+      requestAnimationFrame(animateImages);
+    }
+
+    animateImages();
+  };
+}
+
+
+
+    function createFirework(x, y) {
+      const colors = ['#ff0040', '#ffae00', '#00ffff', '#ff00ff', '#00ff88'];
+      for (let i = 0; i < 80; i++) {
+        particles.push(new Firework(x, y, colors[Math.floor(Math.random() * colors.length)]));
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      particles = particles.filter(p => p.alpha > 0);
+      for (let p of particles) {
+        p.update();
+        p.draw();
+      }
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    canvas.addEventListener('click', (e) => {
+      createFirework(e.clientX, e.clientY);
+      music.play();
+      fire.play();
+    //   floatingButterflies(7)
+      fire.volume = 0.6;
+      setTimeout(() => {
+  fire.pause(); // stop after 10 seconds
+}, 10000);
+      document.getElementById("heading").innerHTML = "Happy diwali Riya ❤️❤️🎆🎆";
+      launchRocket(500, 500);
+      launchRocket(900, 500);
+      launchRocket(700, 500);
+      launchRocket(1100, 500);
+      launchRocket(1300, 500);
+      launchRocket(1500, 500);
+      floatingDiyas()
+
+    });
+
+    document.getElementById('btn').addEventListener('click', () => {
+        floatingDiyas()
+      launchRocket(900, 900);
+      document.getElementById("heading").innerHTML = "Happy diwali Riya ❤️❤️🎆🎆";
+      const music = document.getElementById('music');
+      music.play();
+    //   floatingButterflies(7)
+      fire.play();
+      
+      fire.volume = 0.6;
+      setTimeout(() => {
+  fire.pause(); // stop after 10 seconds
+}, 10000);
+      
+      document.getElementById('btn').style.display = 'none';
+      createFirework(window.innerWidth / 2, window.innerHeight / 2);
+      setInterval(() => createFirework(Math.random() * window.innerWidth, Math.random() * window.innerHeight / 2), 800);
+    });
+  </script>
+</body>
+</html>
